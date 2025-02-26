@@ -11,23 +11,30 @@ from scipy.special import j1
 from scipy.special import sici
 from scipy.integrate import quad_vec
 
+def form_factor_sphere(q, R):
+    F = 3*(np.sin(q*R)-q*R*np.cos(q*R))/np.power(q*R, 3)
+    return F*F
+    
 def sphere(q, R, scale = 1, delta_rho = 1, background = 0.001):
     V = (4/3)*np.pi*R**3
-    F = 3*(np.sin(q*R)-q*R*np.cos(q*R))/np.power(q*R, 3)
-    return (scale/V)*(delta_rho**2)*(V**2)*(F*F) + background
+    P = form_factor_sphere(q, R)
+    return (scale/V)*(delta_rho**2)*(V**2)*P + background
 
-def core_shell_sphere(q, R1, R2, scale = 1, delta_rho = 1, background = 0.001):
+def form_factor_core_shell_sphere(q, R1, R2):
     V1 = (4/3)*np.pi*R1**3
     V2 = (4/3)*np.pi*R2**3
     F1 = 3*(np.sin(q*R1)-q*R1*np.cos(q*R1))/np.power(q*R1, 3)
     F2 = 3*(np.sin(q*R2)-q*R2*np.cos(q*R2))/np.power(q*R2, 3)
     F  = (V1*F1-V2*F2)/(V1-V2)
-    return  (scale/V1)*(delta_rho**2)*(V1**2)*(F*F) + background
-
-def cilinder(q, R, L, scale = 1, delta_rho = 1, background = 0.001):
-    V = np.pi*L*R**2
-    W = (scale/V)*(delta_rho**2)*(V**2)
+    return F*F
     
+def core_shell_sphere(q, R1, R2, scale = 1, delta_rho = 1, background = 0.001):
+    V1 = (4/3)*np.pi*R1**3
+    P = form_factor_core_shell_sphere(q, R1, R2)
+    return  (scale/V1)*(delta_rho**2)*(V1**2)*P + background
+
+def form_factor_cilinder(q, R, L):
+
     def integrand(alpha, q):
         A1 = q*L*np.cos(alpha)
         A2 = q*R*np.sin(alpha)
@@ -36,11 +43,16 @@ def cilinder(q, R, L, scale = 1, delta_rho = 1, background = 0.001):
         return np.sin(alpha)*(T1*T2)**2
     
     P, _ = quad_vec(lambda alpha: integrand(alpha, q), 0, np.pi/2)
+    return P
+    
+def cilinder(q, R, L, scale = 1, delta_rho = 1, background = 0.001):
+    V = np.pi*L*R**2
+    W = (scale/V)*(delta_rho**2)*(V**2)
+    P = form_factor_cilinder(q, R, L)
     return W*P + background
 
-def ellipsoid(q, Re,Rp, scale = 1, delta_rho = 1, background = 0.001):
+def form_factor_ellipsoid(q, Re, Rp, delta_rho):
     V = (4/3)*np.pi*Re*Rp**3
-    W = (scale/V)
     
     def integrand(alpha, q):
         R = np.sqrt((np.sin(alpha)*Re)**2+(np.cos(alpha)*Rp)**2)
@@ -50,12 +62,16 @@ def ellipsoid(q, Re,Rp, scale = 1, delta_rho = 1, background = 0.001):
     
     P, _ = quad_vec(lambda alpha: integrand(alpha, q), 0, np.pi/2)
     
+    return P
+    
+def ellipsoid(q, Re, Rp, scale = 1, delta_rho = 1, background = 0.001):
+    V = (4/3)*np.pi*Re*Rp**3
+    W = (scale/V)
+    P = form_factor_ellipsoid(q, Re, Rp, delta_rho)
     return W*P + background
 
-def parallelepiped(q, a, b, c, scale = 1, delta_rho = 1, background = 0.001):
-    V = a*b*c
-    W = (scale/V)*(2/np.pi)*(delta_rho*V)**2
-
+def form_factor_parallelepiped(q, a, b, c):
+    
     def integrand(alpha, beta, q, a, b, c):
         A1 = q*a*np.sin(alpha)*np.cos(beta)
         A2 = q*b*np.sin(alpha)*np.cos(beta)
@@ -70,15 +86,21 @@ def parallelepiped(q, a, b, c, scale = 1, delta_rho = 1, background = 0.001):
     def outer_integral(alpha):
         return quad_vec(lambda beta: integrand(alpha, beta, q, a, b, c), 0, np.pi/2)[0]
     
-    P = quad_vec(outer_integral, 0, np.pi/2)[0]
+    return quad_vec(outer_integral, 0, np.pi/2)[0]
     
+def parallelepiped(q, a, b, c, scale = 1, delta_rho = 1, background = 0.001):
+    V = a*b*c
+    W = (scale/V)*(2/np.pi)*(delta_rho*V)**2    
+    P = form_factor_parallelepiped(q, a, b, c)
     return W*P+background
 
+def form_factor_rod(q, L):
+    si, _ = sici(q*L)
+    return 2*si/(q*L) - 4*np.power(np.sin(q*L/2),2)/np.power(q*L, 2)
+    
 def rod(q, L, scale = 1, delta_rho = 1, background = 0.001):
     V = L
-    si, _ = sici(q*L)
-    P = 2*si/(q*L) - 4*np.power(np.sin(q*L/2),2)/np.power(q*L, 2)
-    
+    P = form_factor_rod(q, L)
     return P*(scale/V)*(delta_rho*V)**2 + background
     
 if __name__ == "__main__":
