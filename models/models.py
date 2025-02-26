@@ -97,7 +97,7 @@ def parallelepiped(q, a, b, c, scale = 1, delta_rho = 1, background = 0.001):
 def form_factor_rod(q, L):
     si, _ = sici(q*L)
     return 2*si/(q*L) - 4*np.power(np.sin(q*L/2),2)/np.power(q*L, 2)
-    
+
 def rod(q, L, scale = 1, delta_rho = 1, background = 0.001):
     V = L
     P = form_factor_rod(q, L)
