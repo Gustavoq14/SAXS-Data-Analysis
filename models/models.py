@@ -11,22 +11,37 @@ from scipy.special import j1
 from scipy.special import sici
 from scipy.integrate import quad_vec
 
+<<<<<<< HEAD
 def form_factor_sphere(q, R):
     F = 3*(np.sin(q*R)-q*R*np.cos(q*R))/np.power(q*R, 3)
     return F*F
     
+=======
+>>>>>>> 2177e9755511ae34cffd808a1822abd7144d99c7
 def sphere(q, R, scale = 1, delta_rho = 1, background = 0.001):
     V = (4/3)*np.pi*R**3
     P = form_factor_sphere(q, R)
     return (scale/V)*(delta_rho**2)*(V**2)*P + background
 
+<<<<<<< HEAD
 def form_factor_core_shell_sphere(q, R1, R2):
+=======
+def core_shell_sphere(q, R1, R2, scale = 1, delta_rho = 1, background = 0.001):
+>>>>>>> 2177e9755511ae34cffd808a1822abd7144d99c7
     V1 = (4/3)*np.pi*R1**3
     V2 = (4/3)*np.pi*R2**3
     F1 = 3*(np.sin(q*R1)-q*R1*np.cos(q*R1))/np.power(q*R1, 3)
     F2 = 3*(np.sin(q*R2)-q*R2*np.cos(q*R2))/np.power(q*R2, 3)
     F  = (V1*F1-V2*F2)/(V1-V2)
+<<<<<<< HEAD
     return F*F
+=======
+    return  (scale/V1)*(delta_rho**2)*(V1**2)*(F*F) + background
+
+def cilinder(q, R, L, scale = 1, delta_rho = 1, background = 0.001):
+    V = np.pi*L*R**2
+    W = (scale/V)*(delta_rho**2)*(V**2)
+>>>>>>> 2177e9755511ae34cffd808a1822abd7144d99c7
     
 def core_shell_sphere(q, R1, R2, scale = 1, delta_rho = 1, background = 0.001):
     V1 = (4/3)*np.pi*R1**3
@@ -94,6 +109,7 @@ def parallelepiped(q, a, b, c, scale = 1, delta_rho = 1, background = 0.001):
     P = form_factor_parallelepiped(q, a, b, c)
     return W*P+background
 
+<<<<<<< HEAD
 def form_factor_rod(q, L):
     si, _ = sici(q*L)
     return 2*si/(q*L) - 4*np.power(np.sin(q*L/2),2)/np.power(q*L, 2)
@@ -101,6 +117,13 @@ def form_factor_rod(q, L):
 def rod(q, L, scale = 1, delta_rho = 1, background = 0.001):
     V = L
     P = form_factor_rod(q, L)
+=======
+def rod(q, L, scale = 1, delta_rho = 1, background = 0.001):
+    V = L
+    si, _ = sici(q*L)
+    P = 2*si/(q*L) - 4*np.power(np.sin(q*L/2),2)/np.power(q*L, 2)
+    
+>>>>>>> 2177e9755511ae34cffd808a1822abd7144d99c7
     return P*(scale/V)*(delta_rho*V)**2 + background
     
 if __name__ == "__main__":
